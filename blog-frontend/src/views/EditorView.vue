@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { createArticle, getArticle, updateArticle, uploadImage } from '@/api/article'
+import { createArticle, getArticle, updateArticle, uploadImage, getCategories, getTags } from '@/api/article'
 
 const router = useRouter()
 const route = useRoute()
@@ -10,10 +10,25 @@ const form = ref({
   title: '',
   content: '',
   status: 'draft',
+  is_top: false,
+  category_id: null,
+  tag_ids: [],
 })
+const categories = ref([])
+const tags = ref([])
 const loading = ref(false)
 const isEdit = ref(false)
 const uploading = ref(false)
+
+const loadOptions = async () => {
+  try {
+    const [catRes, tagRes] = await Promise.all([getCategories(), getTags()])
+    categories.value = catRes.data
+    tags.value = tagRes.data
+  } catch (error) {
+    console.error('Failed to load options:', error)
+  }
+}
 
 // 加载文章（编辑模式）
 const loadArticle = async () => {
@@ -27,6 +42,9 @@ const loadArticle = async () => {
       title: article.title,
       content: article.content,
       status: article.status,
+      is_top: article.is_top || false,
+      category_id: article.category?.id || null,
+      tag_ids: (article.tags || []).map(t => t.id),
     }
   } catch (error) {
     console.error('Failed to load article:', error)
@@ -140,6 +158,7 @@ const insertImage = () => {
 }
 
 onMounted(() => {
+  loadOptions()
   loadArticle()
 })
 </script>
@@ -199,12 +218,38 @@ onMounted(() => {
           ></textarea>
         </div>
         
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">分类</label>
+            <select id="category" v-model="form.category_id">
+              <option :value="null">未分类</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="status">状态</label>
+            <select id="status" v-model="form.status">
+              <option value="draft">草稿</option>
+              <option value="published">发布</option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label for="status">状态</label>
-          <select id="status" v-model="form.status">
-            <option value="draft">草稿</option>
-            <option value="published">发布</option>
-          </select>
+          <label>标签</label>
+          <div class="tag-selector">
+            <label v-for="tag in tags" :key="tag.id" class="tag-checkbox">
+              <input type="checkbox" :value="tag.id" v-model="form.tag_ids" />
+              {{ tag.name }}
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" v-model="form.is_top" />
+            置顶文章
+          </label>
         </div>
         
         <div class="form-actions">
@@ -246,6 +291,36 @@ onMounted(() => {
 
 .form-group {
   margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.tag-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tag-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  background: #f5f5f5;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .form-group label {

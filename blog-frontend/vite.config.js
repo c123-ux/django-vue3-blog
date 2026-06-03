@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -14,9 +13,28 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: 'http://127.0.0.1:8001',
         changeOrigin: true,
-      }
+        timeout: 30000,
+        proxyTimeout: 30000,
+      },
+      '/ws': {
+        target: 'ws://127.0.0.1:8001',
+        ws: true,
+        changeOrigin: true,
+      },
+      '/sitemap.xml': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
+      '/robots.txt': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
+      '/media': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
     }
   }
 })

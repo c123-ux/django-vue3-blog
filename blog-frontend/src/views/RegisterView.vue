@@ -46,6 +46,7 @@ const handleRegister = async () => {
 <template>
   <div class="register-container">
     <div class="register-box">
+      <button @click="router.push('/')" class="close-btn" title="关闭并返回首页">✕</button>
       <h1 class="register-title">用户注册</h1>
       
       <form @submit.prevent="handleRegister" class="register-form">
@@ -117,12 +118,34 @@ const handleRegister = async () => {
 }
 
 .register-box {
+  position: relative;
   background: white;
   padding: 3rem;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 450px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.close-btn:hover {
+  background: #e0e0e0;
+  color: #333;
+  transform: rotate(90deg);
 }
 
 .register-title {

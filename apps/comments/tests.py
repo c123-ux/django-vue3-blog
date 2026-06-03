@@ -40,35 +40,34 @@ class CommentAPITest(APITestCase):
         self.user = User.objects.create_user(username='testuser', password='testpass123')
         self.article = Article.objects.create(title='测试文章', content='内容', author=self.user, status='published')
     
+    def _get_comment_results(self, response):
+        data = response.data
+        return data if isinstance(data, list) else data.get('results', [])
+
     def test_list_comments_empty(self):
         """测试获取评论列表接口正常"""
         response = self.client.get(f'/api/comments/article/{self.article.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # 评论 API 返回分页格式：{'count': 0, 'next': None, 'previous': None, 'results': []}
-        self.assertIn('count', response.data)
-        self.assertIn('results', response.data)
-    
+        self.assertEqual(self._get_comment_results(response), [])
+
     def test_list_comments_with_data(self):
         """测试有数据的评论列表"""
         Comment.objects.create(article=self.article, author=self.user, content='测试评论', is_approved=True)
         response = self.client.get(f'/api/comments/article/{self.article.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # 评论 API 返回分页格式
-        self.assertIn('results', response.data)
-        self.assertGreaterEqual(len(response.data['results']), 1)
-    
+        self.assertGreaterEqual(len(self._get_comment_results(response)), 1)
+
     def test_list_comments_unapproved(self):
         """测试不显示未审核评论"""
-        # 先获取当前已审核评论数量
         response1 = self.client.get(f'/api/comments/article/{self.article.id}/')
-        count_before = len(response1.data.get('results', []))
+        count_before = len(self._get_comment_results(response1))
         
         # 创建一个未审核评论
         Comment.objects.create(article=self.article, author=self.user, content='未审核', is_approved=False)
         
         # 再次获取，数量应该不变
         response2 = self.client.get(f'/api/comments/article/{self.article.id}/')
-        self.assertEqual(len(response2.data.get('results', [])), count_before)
+        self.assertEqual(len(self._get_comment_results(response2)), count_before)
     
     def test_create_comment_authenticated(self):
         """测试创建评论（已登录）"""

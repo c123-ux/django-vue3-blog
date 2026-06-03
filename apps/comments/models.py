@@ -22,8 +22,11 @@ class Comment(models.Model):
         User,
         verbose_name='作者',
         related_name='comments',
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
+    nickname = models.CharField('昵称', max_length=50, default='匿名用户')
     content = models.TextField('内容')
     is_approved = models.BooleanField('已审核', default=True)
     created_at = models.DateTimeField('创建时间', auto_now_add=True)
@@ -38,7 +41,7 @@ class Comment(models.Model):
         ]
 
     def __str__(self):
-        return f'Comment by {self.author.username} on {self.article.title}'
+        return f'Comment by {self.nickname} on {self.article.title}'
 
     def get_replies_count(self):
         """获取回复数量"""

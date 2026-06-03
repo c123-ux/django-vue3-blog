@@ -24,3 +24,41 @@ psycopg2-binary>=2.9.0
 
 # Filtering
 django-filter>=25.2
+
+# 异步任务
+celery>=5.4.0
+redis>=5.2.0
+
+# WebSocket
+channels>=4.2.0
+channels-redis>=4.2.0
+daphne>=4.1.0
+
+# 全文搜索
+elasticsearch>=8.15.0
+django-elasticsearch-dsl>=8.0
+
+# 日志增强
+python-json-logger>=3.2.0
+
+# 监控和错误追踪
+sentry-sdk>=2.20.0
+
+# 性能监控
+django-prometheus>=2.3.0
+psutil>=6.0.0
+
+# 邮件发送
+django-anymail>=11.1
+
+# 图片处理优化
+django-imagekit>=5.0.0
+
+# API限流
+django-ratelimit>=4.1.0
+
+# 数据库优化
+django-extensions>=3.2.0
+
+# DNS解析（邮箱验证）
+dnspython>=2.7.0
